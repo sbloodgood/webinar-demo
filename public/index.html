@@ -273,22 +273,20 @@ openfin --launch --config app.json
 
 							<h3>New Window</h3>
 							<pre><code class="hljs new-win" contenteditable>
-var childWindow = new fin.desktop.Window({
-    name: "childWindow",
-    url: "child.html",
-    defaultWidth: 320,
-    defaultHeight: 320,
-    defaultTop: 10,
-    defaultLeft: 300,
-    frame: true,
-    resize: false,
-    autoShow: true,
-    saveWindowState:false
-}, () => {
-    console.log("The window has successfully been created");
-}, () => {
-    console.log("Error creating window");
-});
+async function createWindow() {
+    const winOption = {
+        name:'child',
+        defaultWidth: 300,
+        defaultHeight: 300,
+        url: 'https://cdn.openfin.co/docs/javascript/stable/tutorial-Window.create.html',
+        frame: true,
+        autoShow: true,
+	contextMenu: true
+    };
+    return await fin.Window.create(winOption);
+}
+
+createWindow().then(() => console.log('Window is created')).catch(err => console.log(err));
 </pre></code>
 							<button id="new-win" class="demo-button">run demo</button>
 					</section>
@@ -351,59 +349,31 @@ document.getElementById("win-interact-show").addEventListener("click",function()
 					<section>
 							<h2>Animating Windows</h2>
 							<pre><code class="hljs win-animate" contenteditable>
-var childWindow = new fin.desktop.Window({
-  name: "childWindow",
-  url: "child.html",
-  defaultWidth: 320,
-  defaultHeight: 320,
-  defaultTop: 600,
-  defaultLeft: 800,
-  autoShow: true,
-  saveWindowState:false
-}, () => {
-  var win = childWindow;
-  win.animate({
-    position:{
-      left:10,
-      top:10,
-      duration:2000
-    }},
-    {interrupt:false, tween:"ease-out-bounce"},
-		function(evt){
-		  console.log("Window position animation complete");
-		  win.animate({
-			  size:{
-          width:500,
-          height:500,
-          duration:1000
-        }},
-        {interrupt:false, tween:"ease-in"},
-        function(evt){
-          console.log("Window size animation complete");
-          //set opacity animation
-          win.addEventListener("bounds-changing",function(){
-	          win.animate({
-              opacity:{
-                opacity:.5,
-                duration:300
-             }},
-             {interrupt:true})
-         });
+async function animateWindow() {
+    const transitions = {
+        opacity: {
+            opacity: 0.7,
+            duration: 500
+        },
+        position: {
+            top: 100,
+            left: 100,
+            duration: 500,
+            relative: true
+        }
+    };
+    const options = {
+        interrupt: true,
+        tween: 'ease-in'
+    };
 
-         win.addEventListener("bounds-changed",function(){
-	         win.animate({
-	           opacity:{
-               opacity:1,
-               duration:300
-           }},
-           {interrupt:true})
-         });
-      });
-		});
+    const win = await fin.Window.getCurrent();
+    return win.animate(transitions, options);
+}
 
-  }, function () {
-    console.log("Error creating window");
-});
+animateWindow()
+    .then(() => console.log('Animation done'))
+    .catch(err => console.error(err));
 </code></pre>
 							<button class="demo-button" id="win-animate">run demo</button>
 					</section>
